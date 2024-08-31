@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History</title>
+</head>
+<body>
+    <h1>Transaction History for Address: <%= address %></h1>
+
+    <h2>Transactions:</h2>
+    <% if (transactions.length > 0) { %>
+        <table>
+            <thead>
+                <tr>
+                    <th>Hash</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Value (ETH)</th>
+                    <th>Gas Used</th>
+                    <th>Gas Price (Gwei)</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% transactions.forEach(tx => { %>
+                    <tr>
+                        <td><%= tx.from %></td>
+                        <td><%= tx.to %></td>
+                        <td><%= (tx.value / 1e18).toFixed(6) %></td>
+                        <td><%= tx.gasUsed %></td>
+                        <td><%= (tx.gasPrice / 1e9).toFixed(2) %></td> 
+                        <td><%= new Date(tx.timeStamp * 1000).toLocaleString() %></td> 
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>No transactions found for this address.</p>
+    <% } %>
+
+    <form action="/transaction-history" method="GET">
+        <label for="address">Enter Ethereum Address:</label>
+        <input type="text" id="address" name="address" required>
+        <button type="submit">View Transactions</button>
+    </form>
+</body>
+</html>
