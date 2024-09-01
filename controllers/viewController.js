@@ -6,18 +6,29 @@ exports.renderHome = (req, res) => {
 
 exports.renderTransactionHistory = async (req, res) => {
     const { address } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;  // Default to 10 items per page
+    const skip = (page - 1) * limit;
 
     if (!address) {
         return res.render('transaction-history', {
             address: '',
             totalExpenses: 'N/A',
             etherPrice: 'N/A',
-            transactions: []
+            transactions: [],
+            currentPage: page,
+            totalPages: 0,
+            limit
         });
     }
 
     try {
-        const transactions = await Transaction.find({ address });
+        const [transactions, totalTransactions] = await Promise.all([
+            Transaction.find({ address })
+                .skip(skip)
+                .limit(limit),
+            Transaction.countDocuments({ address })
+        ]);
 
         let totalExpenses = 0;
         transactions.forEach(tx => {
@@ -28,11 +39,16 @@ exports.renderTransactionHistory = async (req, res) => {
 
         const latestPrice = await EthPrice.findOne().sort({ timestamp: -1 });
 
+        const totalPages = Math.ceil(totalTransactions / limit);
+
         res.render('transaction-history', {
             address,
             totalExpenses: totalExpenses.toFixed(6),
             etherPrice: latestPrice ? latestPrice.price : 'Price not available',
-            transactions
+            transactions,
+            currentPage: page,
+            totalPages,
+            limit
         });
     } catch (error) {
         console.error('Error calculating expenses:', error);
@@ -40,10 +56,13 @@ exports.renderTransactionHistory = async (req, res) => {
             address: '',
             totalExpenses: 'Error occurred',
             etherPrice: 'Error occurred',
-            transactions: []
+            transactions: [],
+            currentPage: page,
+            totalPages: 0
         });
     }
 };
+
 
 exports.renderExpensesAndPrice = async (req, res) => {
     const { address } = req.query;
@@ -100,3 +119,38 @@ exports.renderLatestPrice = async (req, res) => {
         });
     }
 };
+
+exports.renderAnalysis = async (req, res) => {
+    try {
+        const prices = await EthPrice.find().sort({ timestamp: 1 }).exec();
+        const transactions = await Transaction.aggregate([
+            {
+                $addFields: {
+                    date: {
+                        $toDate: {
+                            $multiply: [
+                                { $convert: { input: "$timeStamp", to: "double" } }, 
+                                1000
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                    volume: { $sum: { $toDouble: "$value" } }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]).exec();
+
+        res.render('analysis', {
+            prices,
+            transactions
+        });
+    } catch (error) {
+        console.error('Error fetching analysis data:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Ethereum Data Analysis</h1>
+
+    <h2>Price Trend</h2>
+    <canvas id="priceChart"></canvas>
+
+    <h2>Transaction Volume</h2>
+    <canvas id="volumeChart"></canvas>
+
+    <script>
+        const prices = JSON.stringify(prices);
+        const transactions = JSON.stringify(transactions);
+
+
+        new Chart(document.getElementById('priceChart'), {
+            type: 'line',
+            data: {
+                labels: prices.map(p => new Date(p.timestamp).toLocaleDateString()),
+                datasets: [{
+                    label: 'Price (INR)',
+                    data: prices.map(p => p.price),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Date' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Price (INR)' }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('volumeChart'), {
+            type: 'bar',
+            data: {
+                labels: transactions.map(v => new Date(v._id).toLocaleDateString()), // Assuming _id is a timestamp
+                datasets: [{
+                    label: 'Transaction Volume (ETH)',
+                    data: transactions.map(v => v.volume),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Date' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Volume (ETH)' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
