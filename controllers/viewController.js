@@ -1,13 +1,16 @@
 const { Transaction, EthPrice } = require('../models/model');
 
+
+//Rendering the home page
 exports.renderHome = (req, res) => {
     res.render('index');
 };
 
+//Fetching the transaction history from the database and rendering it on the page.
 exports.renderTransactionHistory = async (req, res) => {
     const { address } = req.query;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;  // Default to 10 items per page
+    const limit = parseInt(req.query.limit) || 10; 
     const skip = (page - 1) * limit;
 
     if (!address) {
@@ -64,6 +67,7 @@ exports.renderTransactionHistory = async (req, res) => {
 };
 
 
+//Task 3: Calculating the total expense using formula gasUsed * gasPrice / 1e18;
 exports.renderExpensesAndPrice = async (req, res) => {
     const { address } = req.query;
 
@@ -103,6 +107,7 @@ exports.renderExpensesAndPrice = async (req, res) => {
 };
 
 
+//Fetching the latest price from the database and rendering it on the page.
 exports.renderLatestPrice = async (req, res) => {
     try {
         const latestPriceEntry = await EthPrice.findOne().sort({ timestamp: -1 });
@@ -120,6 +125,8 @@ exports.renderLatestPrice = async (req, res) => {
     }
 };
 
+
+//Fetching the data and showing the aanlysis in form of chart and graph.
 exports.renderAnalysis = async (req, res) => {
     try {
         const prices = await EthPrice.find().sort({ timestamp: 1 }).exec();

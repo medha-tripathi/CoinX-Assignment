@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { Transaction } = require('../models/model');
 
+//Task 1: Fetching transaction history from ethereum address and storing it into db
 const fetchTransactions = async (req, res) => {
     const { address } = req.params;
     try {

@@ -10,12 +10,17 @@
     <h1>Ethereum Data</h1>
 
     <form id="data-form" action="" method="GET">
-        <label for="address">Ethereum Address:</label>
+        <label for="address">Enter Ethereum Address:</label>
         <input type="text" id="address" name="address" required>
 
-        <button type="button" onclick="submitForm('/transaction-history')">View Transaction History</button>
-        <button type="button" onclick="submitForm('/expenses-and-price')">View Expenses and Price</button>
-        <button type="button" onclick="window.location.href='/latest-price'">Check Latest Ethereum Price</button>
+        <div class="buttons">
+            <button type="button" onclick="submitForm('/transaction-history')">View Transaction History</button>
+            <button type="button" onclick="submitForm('/expenses-and-price')">View Expenses and Price</button>
+            <button type="button" onclick="window.location.href='/latest-price'">Check Latest Ethereum Price</button>
+            <button type="button" onclick="window.location.href='/analysis'">Check the Price Trend and Transaction Volume</button>
+        </div>
+
+        
     </form>
 
     <script>

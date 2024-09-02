@@ -16,8 +16,8 @@
     <canvas id="volumeChart"></canvas>
 
     <script>
-        const prices = JSON.stringify(prices);
-        const transactions = JSON.stringify(transactions);
+        const prices = <%- JSON.stringify(prices) %>;
+        const transactions = <%- JSON.stringify(transactions) %>;
 
 
         new Chart(document.getElementById('priceChart'), {

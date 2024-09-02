@@ -19,6 +19,8 @@ app.use('/', viewRoute);
 app.use('/api/transactions', transactionRoute);
 app.use('/api/price', priceRoute);
 
+
+//scheduling the fucntion call every 10 minutes
 cron.schedule('*/10 * * * *', async () => {
     await fetchEthereumPrice();
 });
