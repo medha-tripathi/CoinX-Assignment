@@ -19,18 +19,32 @@ const fetchTransactions = async (req, res) => {
 
         const transactions = response.data.result;
         await Transaction.deleteMany({ address });
-        const transactionDocs = transactions.map(tx => ({
-            address,
-            blockNumber: tx.blockNumber,
-            timeStamp: tx.timeStamp,
-            hash: tx.hash,
-            from: tx.from,
-            to: tx.to,
-            value: tx.value,
-            gas: tx.gas,
-            gasPrice: tx.gasPrice,
-            gasUsed: tx.gasUsed,
-            isError: tx.isError
+
+        const transactionDocs = await Promise.all(transactions.map(async (tx) => {
+            const date = new Date(tx.timeStamp * 1000);
+            const formattedDate = `${('0' + date.getDate()).slice(-2)}-${('0' + (date.getMonth() + 1)).slice(-2)}-${date.getFullYear()}`; // Format to dd-mm-yyyy
+
+            const priceResponse = await axios.get(`https://api.coingecko.com/api/v3/coins/ethereum/history`, {
+                params: {
+                    date: formattedDate
+                }
+            });
+            const coinPrice = priceResponse.data.market_data.current_price.inr;
+
+            return {
+                address,
+                blockNumber: tx.blockNumber,
+                timeStamp: tx.timeStamp,
+                hash: tx.hash,
+                from: tx.from,
+                to: tx.to,
+                value: tx.value,
+                gas: tx.gas,
+                gasPrice: tx.gasPrice,
+                gasUsed: tx.gasUsed,
+                isError: tx.isError,
+                requiredCoinPrice: coinPrice
+            };
         }));
 
         await Transaction.insertMany(transactionDocs);
